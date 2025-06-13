@@ -1,5 +1,4 @@
---// ZWCscripts Ultimate Universal Menu (ESP, Aim, Movement) //--
--- Her şey kullanıcı kontrolünde, başlangıçta kapalı, güvenli ve modern animasyonlu GUI
+--// ZWCscripts Dark Gray Universal Menu (Mobil ve PC uyumlu, sadece siyah&gri tonları) //--
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -7,25 +6,22 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
 
--- Genel ayarlar
+-- Tema renkleri: Yalnızca siyah ve gri tonlar
 local CFG = {
-    MainColor = Color3.fromRGB(13,19,32),
-    Accent = Color3.fromRGB(0,178,255),
-    Neon = Color3.fromRGB(0,255,255),
-    Border = Color3.fromRGB(0,40,80),
-    BGTransparency = 0.22,
-    NeonTransparency = 0.46,
+    MainColor = Color3.fromRGB(25,25,25),
+    Accent = Color3.fromRGB(60,60,60),
+    ButtonOn = Color3.fromRGB(90,90,90),
+    ButtonOff = Color3.fromRGB(40,40,40),
+    Text = Color3.fromRGB(210,210,210),
+    SubText = Color3.fromRGB(140,140,140),
+    BGTransparency = 0.18,
+    ButtonTransparency = 0.13,
     Font = Enum.Font.GothamBold,
-    ButtonOff = Color3.fromRGB(32,32,42),
-    ButtonOn = Color3.fromRGB(0,178,255),
-    Shadow = Color3.fromRGB(0,0,0),
 }
 
--- Ana GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "ZWCscripts_UltimateMenu"
+gui.Name = "ZWCscripts_DarkGrayMenu"
 gui.Parent = LocalPlayer.PlayerGui
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
@@ -47,20 +43,11 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 22)
 corner.Parent = main
 
-local shadow = Instance.new("ImageLabel")
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageTransparency = 0.75
-shadow.Size = UDim2.new(1,30,1,30)
-shadow.Position = UDim2.new(0,-15,0,-15)
-shadow.ZIndex = 1
-shadow.Parent = main
-
 -- Üst bar ve başlık
 local bar = Instance.new("Frame")
 bar.Size = UDim2.new(1,0,0,38)
-bar.BackgroundColor3 = CFG.MainColor
-bar.BackgroundTransparency = 0.09
+bar.BackgroundColor3 = CFG.Accent
+bar.BackgroundTransparency = CFG.ButtonTransparency
 bar.BorderSizePixel = 0
 bar.Parent = main
 
@@ -74,7 +61,7 @@ title.Position = UDim2.new(0,18,0,0)
 title.BackgroundTransparency = 1
 title.Text = "ZWCscripts Universal Menu"
 title.Font = CFG.Font
-title.TextColor3 = CFG.Neon
+title.TextColor3 = CFG.Text
 title.TextStrokeTransparency = 0.7
 title.TextSize = 19
 title.TextXAlignment = Enum.TextXAlignment.Left
@@ -85,47 +72,36 @@ local function animatedButton(icon, color, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 34, 0, 34)
     btn.BackgroundColor3 = color
-    btn.BackgroundTransparency = 0.25
+    btn.BackgroundTransparency = 0.18
     btn.AutoButtonColor = false
     btn.Text = icon
     btn.Font = CFG.Font
     btn.TextSize = 21
-    btn.TextColor3 = Color3.fromRGB(245,245,255)
+    btn.TextColor3 = CFG.Text
     btn.ZIndex = 5
     btn.BorderSizePixel = 0
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 17)
     btnCorner.Parent = btn
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.18), {
-            BackgroundColor3 = color:Lerp(CFG.Neon,0.28),
-            BackgroundTransparency = 0.14
+    -- Animasyon ve dokunma desteği
+    local function animate(pressed)
+        TweenService:Create(btn, TweenInfo.new(0.14), {
+            BackgroundColor3 = pressed and Color3.fromRGB(70,70,70) or color,
+            BackgroundTransparency = pressed and 0.05 or 0.18
         }):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.18), {
-            BackgroundColor3 = color,
-            BackgroundTransparency = 0.25
-        }):Play()
-    end)
-    btn.MouseButton1Click:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.07),
-            {BackgroundColor3 = color:Lerp(CFG.Neon,0.7)}
-        ):Play()
-        callback()
-        wait(0.15)
-        TweenService:Create(btn, TweenInfo.new(0.12),
-            {BackgroundColor3 = color}
-        ):Play()
-    end)
+    end
+    btn.MouseButton1Down:Connect(function() animate(true) end)
+    btn.MouseButton1Up:Connect(function() animate(false) end)
+    btn.MouseButton1Click:Connect(callback)
+    btn.TouchTap:Connect(callback)
     return btn
 end
 
-local close = animatedButton("✕", Color3.fromRGB(50,16,32), function() gui:Destroy() end)
+local close = animatedButton("✕", Color3.fromRGB(40,16,16), function() gui:Destroy() end)
 close.Position = UDim2.new(1,-42,0.5,-17)
 close.Parent = bar
 
-local minimize = animatedButton("—", Color3.fromRGB(16,48,90), function()
+local minimize = animatedButton("—", Color3.fromRGB(30,30,30), function()
     main.Visible = false
     gui.Minimized.Visible = true
 end)
@@ -137,8 +113,8 @@ local mini = Instance.new("Frame")
 mini.Name = "Minimized"
 mini.Size = UDim2.new(0,52,0,52)
 mini.Position = UDim2.new(0,30,0.3,0)
-mini.BackgroundColor3 = CFG.MainColor
-mini.BackgroundTransparency = 0.09
+mini.BackgroundColor3 = CFG.Accent
+mini.BackgroundTransparency = CFG.ButtonTransparency
 mini.Visible = false
 mini.Parent = gui
 
@@ -146,7 +122,7 @@ local miniCorner = Instance.new("UICorner")
 miniCorner.CornerRadius = UDim.new(1,0)
 miniCorner.Parent = mini
 
-local miniBtn = animatedButton("≡", CFG.Accent, function()
+local miniBtn = animatedButton("≡", CFG.ButtonOn, function()
     main.Visible = true
     mini.Visible = false
 end)
@@ -158,8 +134,8 @@ miniBtn.Parent = mini
 local tablist = Instance.new("Frame")
 tablist.Size = UDim2.new(0, 110, 1, -52)
 tablist.Position = UDim2.new(0,0,0,42)
-tablist.BackgroundColor3 = CFG.MainColor
-tablist.BackgroundTransparency = 0.21
+tablist.BackgroundColor3 = CFG.Accent
+tablist.BackgroundTransparency = CFG.ButtonTransparency
 tablist.BorderSizePixel = 0
 tablist.Parent = main
 
@@ -169,19 +145,19 @@ tabCorner.Parent = tablist
 
 local tabs = {"Visuals","Aim","Movement"}
 local tabFrames = {}
-local selectedTab = 1
 
 for i,tab in ipairs(tabs) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -14, 0, 40)
     btn.Position = UDim2.new(0, 7, 0, (i-1)*48 + 8)
-    btn.BackgroundColor3 = i==1 and CFG.Accent or CFG.ButtonOff
-    btn.BackgroundTransparency = 0.13
+    btn.BackgroundColor3 = CFG.ButtonOff
+    btn.BackgroundTransparency = 0.08
     btn.Text = tab
     btn.Font = CFG.Font
-    btn.TextColor3 = i==1 and Color3.fromRGB(15,21,30) or CFG.Neon
+    btn.TextColor3 = CFG.Text
     btn.TextSize = 17
     btn.BorderSizePixel = 0
+    btn.AutoButtonColor = false
     local bcorner = Instance.new("UICorner")
     bcorner.CornerRadius = UDim.new(0, 12)
     bcorner.Parent = btn
@@ -189,19 +165,27 @@ for i,tab in ipairs(tabs) do
     tabFrames[i] = Instance.new("Frame")
     tabFrames[i].Size = UDim2.new(1, -120, 1, -60)
     tabFrames[i].Position = UDim2.new(0, 118, 0, 52)
-    tabFrames[i].BackgroundColor3 = Color3.fromRGB(18,23,32)
-    tabFrames[i].BackgroundTransparency = 0.38
+    tabFrames[i].BackgroundColor3 = CFG.MainColor
+    tabFrames[i].BackgroundTransparency = 0.37
     tabFrames[i].BorderSizePixel = 0
     tabFrames[i].Visible = (i==1)
     local tcorner = Instance.new("UICorner")
     tcorner.CornerRadius = UDim.new(0,12)
     tcorner.Parent = tabFrames[i]
     tabFrames[i].Parent = main
+    -- Animasyon ve dokunma
     btn.MouseButton1Click:Connect(function()
         for j=1,#tabs do
             tabFrames[j].Visible = (i==j)
-            tablist[j].BackgroundColor3 = (i==j) and CFG.Accent or CFG.ButtonOff
-            tablist[j].TextColor3 = (i==j) and Color3.fromRGB(15,21,30) or CFG.Neon
+            tablist[j].BackgroundColor3 = (i==j) and CFG.ButtonOn or CFG.ButtonOff
+            tablist[j].TextColor3 = (i==j) and Color3.fromRGB(255,255,255) or CFG.Text
+        end
+    end)
+    btn.TouchTap:Connect(function()
+        for j=1,#tabs do
+            tabFrames[j].Visible = (i==j)
+            tablist[j].BackgroundColor3 = (i==j) and CFG.ButtonOn or CFG.ButtonOff
+            tablist[j].TextColor3 = (i==j) and Color3.fromRGB(255,255,255) or CFG.Text
         end
     end)
 end
@@ -220,7 +204,7 @@ local function CircleToggle(parent, y, text, default, callback)
     lbl.BackgroundTransparency = 1
     lbl.Text = text
     lbl.Font = CFG.Font
-    lbl.TextColor3 = Color3.fromRGB(200,220,240)
+    lbl.TextColor3 = CFG.Text
     lbl.TextSize = 16
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.Parent = row
@@ -235,7 +219,7 @@ local function CircleToggle(parent, y, text, default, callback)
     circle.Size = UDim2.new(0,36,0,36)
     circle.Position = UDim2.new(0,2,0,2)
     circle.BackgroundColor3 = default and CFG.ButtonOn or CFG.ButtonOff
-    circle.BackgroundTransparency = 0.18
+    circle.BackgroundTransparency = 0.13
     circle.BorderSizePixel = 0
     circle.Parent = holder
     local cc = Instance.new("UICorner")
@@ -245,7 +229,7 @@ local function CircleToggle(parent, y, text, default, callback)
     local check = Instance.new("Frame")
     check.Size = UDim2.new(0,22,0,22)
     check.Position = UDim2.new(0.5,-11,0.5,-11)
-    check.BackgroundColor3 = CFG.Neon
+    check.BackgroundColor3 = CFG.Text
     check.BackgroundTransparency = default and 0.04 or 1
     check.BorderSizePixel = 0
     check.Parent = circle
@@ -253,23 +237,29 @@ local function CircleToggle(parent, y, text, default, callback)
     ccc.CornerRadius = UDim.new(1,0)
     ccc.Parent = check
 
-    -- Animasyonlu aç/kapat
+    -- Animasyon ve dokunma için
     local state = default
     local function set(v)
         state = v
-        TweenService:Create(circle, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            BackgroundColor3 = v and CFG.ButtonOn or CFG.ButtonOff,
+        TweenService:Create(circle, TweenInfo.new(0.18), {
+            BackgroundColor3 = v and CFG.ButtonOn or CFG.ButtonOff
         }):Play()
-        TweenService:Create(check, TweenInfo.new(0.19, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TweenService:Create(check, TweenInfo.new(0.13), {
             BackgroundTransparency = v and 0.04 or 1
         }):Play()
         callback(v)
     end
+    local function toggle()
+        set(not state)
+    end
     holder.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            set(not state)
+            toggle()
         end
     end)
+    holder.TouchTap:Connect(toggle)
+    circle.TouchTap:Connect(toggle)
+    row.TouchTap:Connect(toggle)
     set(false)
     return set, function() return state end
 end
@@ -281,31 +271,30 @@ local setName = CircleToggle(tabFrames[1], y+52, "Show Name", false, function(v)
 local setDist = CircleToggle(tabFrames[1], y+104, "Show Distance", false, function(v) _G.ShowDist = v end)
 local setTrace = CircleToggle(tabFrames[1], y+156, "Tracers", false, function(v) _G.ShowTracer = v end)
 
---== Aim Tab (Yardımcı hedefleme ve vuruş) ==--
+--== Aim Tab (Aimbot ve kill aura) ==--
 local ay = 16
-local setAim = CircleToggle(tabFrames[2], ay, "Yardımcı Odak (Aim)", false, function(v) _G.HelperView = v end)
+local setAim = CircleToggle(tabFrames[2], ay, "Odak Yardımı", false, function(v) _G.HelperView = v end)
 local setAura = CircleToggle(tabFrames[2], ay+52, "Yakın Mesafe Vuruş", false, function(v) _G.AutoTouch = v end)
 
--- Kısayol bilgisi
 local shortcut = Instance.new("TextLabel")
 shortcut.Size = UDim2.new(1,-36,0,36)
 shortcut.Position = UDim2.new(0,14,0,ay+112)
 shortcut.BackgroundTransparency = 1
 shortcut.Text = "Açıkken: Ekrana tıkla/dokun → en yakına odaklan / Q tuşu → yakın vuruş"
 shortcut.Font = CFG.Font
-shortcut.TextColor3 = Color3.fromRGB(160,200,255)
+shortcut.TextColor3 = CFG.SubText
 shortcut.TextSize = 13
 shortcut.TextWrapped = true
 shortcut.Parent = tabFrames[2]
 
 --== Movement Tab (Hız, zıplama, uçma) ==--
 local my = 16
-local setSpeed = CircleToggle(tabFrames[3], my, "Hız Artırıcı", false, function(v)
+local setSpeed = CircleToggle(tabFrames[3], my, "Yürüme Hızı", false, function(v)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v and 30 or 16
     end
 end)
-local setJump = CircleToggle(tabFrames[3], my+52, "Yüksek Zıplama", false, function(v)
+local setJump = CircleToggle(tabFrames[3], my+52, "Zıplama Gücü", false, function(v)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character:FindFirstChildOfClass("Humanoid").JumpPower = v and 80 or 50
     end
@@ -314,7 +303,7 @@ local setFly = CircleToggle(tabFrames[3], my+104, "Uçma", false, function(v)
     _G.ZWC_Fly = v
 end)
 
--- -- Uçma sistemi
+-- Uçma sistemi
 _G.ZWC_Fly = false
 local function FlyLoop()
     while true do
@@ -366,7 +355,7 @@ end
 enableMobileDrag(main)
 enableMobileDrag(mini)
 
---== Gizli Yardımcı Odak (Aimbot benzeri) ==--
+--== Yardımcı Odak (Aimbot benzeri) ==--
 _G.HelperView = false
 local function getClosestPart()
     local closest, dist = nil, math.huge
@@ -407,10 +396,10 @@ local function onInput(input, gpe)
 end
 UserInputService.InputBegan:Connect(onInput)
 
---== Gizli Yakın Vuruş (Kill Aura benzeri) ==--
+--== Yakın Vuruş (Kill Aura benzeri) ==--
 _G.AutoTouch = false
 local function getClosestForTouch()
-    local closest, dist = nil, 7 -- Yarıçap (7 studs = biraz uzaktan)
+    local closest, dist = nil, 7
     for _,plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
             local pos = plr.Character.HumanoidRootPart.Position
@@ -432,22 +421,16 @@ UserInputService.InputBegan:Connect(function(input, gp)
     if input.KeyCode == Enum.KeyCode.Q then
         local part = getClosestForTouch()
         if part then
-            -- Silah/kılıç varsa kullan! (Her oyunda farklı çalışabilir.)
             local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if tool and tool:FindFirstChild("Handle") then
-                -- Animasyonlu, doğal bir “vur” hareketi
                 for i=1,3 do
                     tool.Handle.CFrame = CFrame.new(tool.Handle.Position, part.Position)
                     RunService.RenderStepped:Wait()
                 end
             end
-            -- Opsiyonel: olay tetikleyici (en doğal haliyle)
             pcall(function() tool:Activate() end)
         end
     end
 end)
 
---== ESP Kısmını Buraya Tüm Önceki Scriptlerinden Ekleyebilirsin! ==--
--- _G.ESPEnabled, _G.ShowName, _G.ShowDist, _G.ShowTracer değişkenleriyle tamamen uyumlu!
-
---== Son ==--
+--== ESP Kısmını Buraya Ekleyebilirsin! (_G.ESPEnabled, _G.ShowName, _G.ShowDist, _G.ShowTracer ile uyumlu) ==--
